@@ -27,7 +27,7 @@ public class Main {
 		for (int i = 0; i < m; i++) {
 			String input = br.readLine();
 			
-			if (input.matches("-?\\d+")) {
+			if (Character.isDigit(input.charAt(0))) {
 			    sb.append(map1.get(Integer.parseInt(input))).append("\n");
 			} else {
 			    sb.append(map2.get(input)).append("\n");
