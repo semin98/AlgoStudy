@@ -3,46 +3,41 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
-public class Solution {
+class Solution {
 
-    static int N, M, R, C, L, ans;
-
-    static int[] di = {-1, 1, 0, 0};
-    static int[] dj = {0, 0, -1, 1};
-
-    static boolean[][] v;
-    static int[][] map;
-
+    static int N, M, R, C, L;
+    static int[] di = {0, -1, 1, 0, 0};
+    static int[] dj = {0, 0, 0, -1, 1};
     static int[][] pipe = {
             {},
-            {0, 1, 2, 3},
-            {0, 1},
-            {2, 3},
-            {0, 3},
-            {1, 3},
+            {1, 2, 3, 4},
             {1, 2},
-            {0, 2}
+            {3, 4},
+            {1, 4},
+            {2, 4},
+            {2, 3},
+            {1, 3}
     };
+    static int[][] map;
+    static boolean[][] v;
 
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
 
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         int T = Integer.parseInt(br.readLine());
 
-        for(int test_case = 1; test_case <= T; test_case++) {
-
-            st = new StringTokenizer(br.readLine());
+        for(int t = 1; t <= T; t++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
 
             N = Integer.parseInt(st.nextToken());
             M = Integer.parseInt(st.nextToken());
             R = Integer.parseInt(st.nextToken());
             C = Integer.parseInt(st.nextToken());
             L = Integer.parseInt(st.nextToken());
-            ans = 1;
 
             map = new int[N][M];
             v = new boolean[N][M];
@@ -53,61 +48,57 @@ public class Solution {
                     map[i][j] = Integer.parseInt(st.nextToken());
                 }
             }
-            
-            bfs();
-            System.out.println("#" + test_case + " " + ans);
 
+            System.out.println("#" + t + " " + solve());
         }
 
     }
 
-    static void bfs() {
-
+    static int solve() {
         Queue<int[]> q = new ArrayDeque<>();
-        q.offer(new int[] {R, C, 1});
+        q.offer(new int[] {R, C});
         v[R][C] = true;
-        ans = 1;
+
+        int cnt = 1;
+        int time = 1;
 
         while(!q.isEmpty()) {
-            int[] cur = q.poll();
-            int ci = cur[0];
-            int cj = cur[1];
-            int time = cur[2];
+            if(time == L) break;
 
-            if(time == L) continue;
+            int size = q.size();
+            for(int s = 0; s < size; s++) {
+                int[] cur = q.poll();
+                int ci = cur[0];
+                int cj = cur[1];
+                int curType = map[ci][cj];
 
-            int pNum = map[ci][cj];
+                for(int d : pipe[curType]) {
+                    int ni = ci + di[d];
+                    int nj = cj + dj[d];
 
-            for(int d : pipe[pNum]) {
-                int ni = ci + di[d];
-                int nj = cj + dj[d];
-
-                if(isIn(ni, nj) && !v[ni][nj] && map[ni][nj] > 0) {
-                    if(canCon(d, map[ni][nj])) {
-                        v[ni][nj] = true;
-                        q.offer(new int[] {ni, nj, time + 1});
-                        ans++;
+                    if(isIn(ni, nj) && map[ni][nj] > 0 && !v[ni][nj]) {
+                        if(canConnect(d, map[ni][nj])) {
+                            v[ni][nj] = true;
+                            q.offer(new int[]{ni, nj});
+                            cnt++;
+                        }
                     }
                 }
             }
+            time ++;
         }
-
-
+        return cnt;
     }
 
-    static boolean canCon(int d, int nextP) {
-        int need = (d == 0) ? 1 : (d == 1) ? 0 : (d == 2) ? 3 : 2;
-
-        for (int nextDir : pipe[nextP]) {
-            if(nextDir == need) return true;
+    static boolean canConnect(int d, int nextType) {
+        int opp = (d == 1) ? 2 : (d == 2) ? 1 : (d == 3) ? 4 : 3;
+        for(int nextDir : pipe[nextType]) {
+            if(nextDir == opp) return true;
         }
-
         return false;
     }
 
     static boolean isIn(int ci, int cj) {
-        if(0 <= ci && ci < N && 0 <= cj && cj < M) return true;
-        return false;
+        return 0 <= ci && ci < N && 0 <= cj && cj < M;
     }
-
 }
