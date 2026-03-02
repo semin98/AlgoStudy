@@ -1,63 +1,82 @@
-
-
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
 
 public class Main {
-    static int N;
-    static int[][] map, dist;
-    static int[] di = {0, 1, 0, -1};
-    static int[] dj = {1, 0, -1, 0};
+
+    static int N, ans;
+
+    static int[] di = {1, 0, -1, 0};
+    static int[] dj = {0, 1, 0, -1};
+    static PriorityQueue<int[]> pq;
+    static int[][] map;
+    static boolean[][] v;
 
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int cnt = 0;
 
-        while (true) {
-            String line = br.readLine();
-            if (line == null) break;
-            N = Integer.parseInt(line);
-            if (N == 0) break;
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int test = 1;
+
+        while(true) {
+            N = Integer.parseInt(br.readLine());
+            if(N == 0) return;
+
+            ans = 0;
+
+            pq = new PriorityQueue<>((o1, o2) -> {
+                return o1[2] - o2[2];
+            });
 
             map = new int[N][N];
-            dist = new int[N][N];
+            v = new boolean[N][N];
 
-            for (int i = 0; i < N; i++) {
+            for(int i = 0; i < N; i++) {
                 StringTokenizer st = new StringTokenizer(br.readLine());
-                Arrays.fill(dist[i], Integer.MAX_VALUE);
-                for (int j = 0; j < N; j++) {
+                for(int j = 0; j < N; j++) {
                     map[i][j] = Integer.parseInt(st.nextToken());
                 }
             }
 
-            bfs();
-            System.out.println("Problem " + (++cnt) + ": " + dist[N - 1][N - 1]);
+            solve();
+            System.out.println("Problem " + test + ": " + ans);
+            test++;
+
         }
     }
 
-    static void bfs() {
-        Queue<int[]> q = new LinkedList<>();
+    static void solve() {
+        pq.offer(new int[] {0, 0, map[0][0]});
+        v[0][0] = true;
 
-        dist[0][0] = map[0][0];
-        q.offer(new int[]{0, 0});
+        while(!pq.isEmpty()) {
+            int[] cur = pq.poll();
+            int ci = cur[0];
+            int cj = cur[1];
+            int loss = cur[2];
 
-        while (!q.isEmpty()) {
-            int[] cur = q.poll();
-            int r = cur[0];
-            int c = cur[1];
+            if(ci == N - 1 && cj == N - 1) {
+                ans = loss;
+                return;
+            }
 
-            for (int d = 0; d < 4; d++) {
-                int nr = r + di[d];
-                int nc = c + dj[d];
+            for(int d = 0; d < 4; d++) {
+                int ni = ci + di[d];
+                int nj = cj + dj[d];
 
-                if (nr >= 0 && nr < N && nc >= 0 && nc < N) {
-
-                    if (dist[nr][nc] > dist[r][c] + map[nr][nc]) {
-                        dist[nr][nc] = dist[r][c] + map[nr][nc];
-                        q.offer(new int[]{nr, nc});
+                if(isIn(ni, nj)) {
+                    if(!v[ni][nj]) {
+                        v[ni][nj] = true;
+                        pq.offer(new int[] {ni, nj, loss + map[ni][nj]});
                     }
                 }
             }
         }
+
+    }
+
+    static boolean isIn(int i, int j) {
+        return 0 <= i && i < N && 0 <= j && j < N;
     }
 }
