@@ -1,63 +1,65 @@
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
 
-	static int[] arr;
-	static int[][] person;
-	static int N, num;
-	
-	public static void main(String[] args) throws IOException{
-		
+	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
 		
-		N = Integer.parseInt(br.readLine());
-		arr = new int[N + 1];
+		int n = Integer.parseInt(br.readLine());
 		
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		for(int i = 1; i <= N; i++) {
-			arr[i] = Integer.parseInt(st.nextToken());
+		int[] LED = new int[n + 1];
+		
+		st = new StringTokenizer(br.readLine());
+		
+		for (int i = 1; i <= n; i++) {
+			LED[i] = Integer.parseInt(st.nextToken());
 		}
 		
-		num = Integer.parseInt(br.readLine());
-		person = new int[num + 1][2];
-		for(int i = 1; i <= num; i++) {
+		int k = Integer.parseInt(br.readLine());
+		
+		for (int i = 0; i < k; i++) {
 			st = new StringTokenizer(br.readLine());
-			person[i][0] = Integer.parseInt(st.nextToken());
-			person[i][1] = Integer.parseInt(st.nextToken());
-		}
-		
-		for(int i = 1; i <= num; i++) {
-			if(person[i][0] == 1) {
-				male(person[i][1]);
-			} else female(person[i][1]);
 			
-		}
-		
-		for(int i = 1; i <= N; i++) {
-			System.out.print(arr[i] + " ");
-			if(i % 20 == 0) System.out.println();
-		}
-		
-		
-	}
-	
-	static void male(int start) {
-		for(int i = start; i <= N; i += start) {
-			if(i <= N)
-			arr[i] = (arr[i] + 1) % 2;
-		}
-	}
-	
-	static void female(int start) {
-		arr[start] = 1 - arr[start];
-		for(int i = 1; i <= N; i++) {
-			if(start - i < 1 || start + i > N) break;
+			int target = Integer.parseInt(st.nextToken());
+			int number = Integer.parseInt(st.nextToken());
 			
-			if(arr[start - i] == arr[start + i]) {
-				arr[start - i] = 1 - arr[start - i];
-				arr[start + i] = 1 - arr[start + i];
-			} else break;
+			if (target == 1) {
+				int index = number;
+				
+				while (index <= n) {
+					LED[index] = (LED[index] == 1 ? 0 : 1);
+					index += number;
+				}
+			}
+			else {
+				int left = number;
+				int right = number;
+
+				while (left - 1 >= 1 && right + 1 <= n 
+				       && LED[left - 1] == LED[right + 1]) {
+				    left--;
+				    right++;
+				}
+
+				for (int j = left; j <= right; j++) {
+				    LED[j] = 1 - LED[j];
+				}
+			}
+		}
+		
+		int c = 0;
+		
+		for (int i = 1; i <= n; i++) {
+			System.out.print(LED[i] + " ");
+			c++;
+			
+			if (c == 20) {
+				System.out.println();
+				c = 0;
+			}
 		}
 	}
 }
