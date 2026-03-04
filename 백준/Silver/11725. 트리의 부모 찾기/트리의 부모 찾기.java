@@ -1,56 +1,48 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
+import java.util.Scanner;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+	static ArrayList<Integer>[] tree;
+	static int[] parent;
+	static boolean[] visited;
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+		int n = sc.nextInt();
 
-        int N = Integer.parseInt(br.readLine());
-        ArrayList<Integer>[] list = new ArrayList[N + 1];
+		tree = new ArrayList[n + 1];
 
-        for(int i = 1; i <= N; i++) {
-            list[i] = new ArrayList<>();
-        }
+		for (int i = 1; i <= n; i++) {
+			tree[i] = new ArrayList<>();
+		}
 
-        for(int i = 0; i < N - 1; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            int a = Integer.parseInt(st.nextToken());
-            int b = Integer.parseInt(st.nextToken());
-            list[a].add(b);
-            list[b].add(a);
-        }
+		for (int i = 1; i <= n - 1; i++) {
+			int x = sc.nextInt();
+			int y = sc.nextInt();
 
-        int[] parent = new int[N + 1];
-        boolean[] v = new boolean[N + 1];
+			tree[x].add(y);
+			tree[y].add(x);
+		}
 
-        Queue<Integer> q = new LinkedList<>();
-        q.add(1);
-        v[1] = true;
+		parent = new int[n + 1];
+		visited = new boolean[n + 1];
+		
+		dfs(1);
 
-        while(!q.isEmpty()) {
-            int cur = q.poll();
+		for (int i = 2; i <= n; i++) {
+			System.out.println(parent[i]);
+		}
+	}
 
-            for(int next : list[cur]) {
-                if(!v[next]) {
-                    v[next] = true;
-                    parent[next] = cur;
-                    q.add(next);
-                }
-
-            }
-        }
-
-        StringBuilder sb = new StringBuilder();
-        for(int i = 2; i <= N; i++) {
-            sb.append(parent[i]).append("\n");
-        }
-        System.out.println(sb);
-    }
+	static void dfs(int node) {
+		visited[node] = true;
+		
+		for (int next : tree[node]) {
+			if (visited[next]) continue;
+			
+			parent[next] = node;
+			dfs(next);
+		}
+	}
 }
