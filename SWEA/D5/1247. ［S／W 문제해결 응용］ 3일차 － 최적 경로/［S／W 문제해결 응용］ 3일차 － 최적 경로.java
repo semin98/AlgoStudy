@@ -4,12 +4,11 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Solution {
-	
-	static int N, si, sj, ei, ej, ans;
-	static boolean[] chk;
-	static int[] order;
-	static int[][] homes;
 
+	static int N, si, sj, ei, ej, ans;
+	static int[][] customers;
+	static boolean[] v;
+	
 	public static void main(String[] args) throws IOException {
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -24,73 +23,49 @@ public class Solution {
 			
 			st = new StringTokenizer(br.readLine());
 			
-			homes = new int[N][2];
-			chk = new boolean[N];
-			order = new int[N];
+			si = Integer.parseInt(st.nextToken());
+			sj = Integer.parseInt(st.nextToken());
 			
-			int idx = 0;
-			for(int i = 0; i < N + 2; i++) {
-				int start = Integer.parseInt(st.nextToken());
-				int end = Integer.parseInt(st.nextToken());
-				
-				if(i == 0) {
-					si = start;
-					sj = end;
-				} else if(i == 1) {
-					ei = start;
-					ej = end;
-				} else {
-					homes[idx][0] = start;
-					homes[idx][1] = end;
-					idx++;
-				}
+			ei = Integer.parseInt(st.nextToken());
+			ej = Integer.parseInt(st.nextToken());
+			
+			customers = new int[N][2];
+			v = new boolean[N];
+			for(int i = 0; i < N; i++) {
+				customers[i][0] = Integer.parseInt(st.nextToken());
+				customers[i][1] = Integer.parseInt(st.nextToken());
 			}
 			
-			permutation(0);
-			
+			findPath(0, si, sj, 0);
 			System.out.println("#" + t + " " + ans);
 		}
 		
 	}
 	
-	static void permutation(int cnt) {
+	static void findPath(int count, int lastX, int lastY, int distSum) {
 		
-		if(cnt == N) {
-			getAns();
+		if(distSum >= ans) return;
+		
+		if(count == N) {
+			int finalDist = distSum + getDist(lastX, lastY, ei, ej);
+			ans = Math.min(ans, finalDist);
 			return;
 		}
 		
 		for(int i = 0; i < N; i++) {
-			if(!chk[i]) {
-				chk[i] = true;
-				order[cnt] = i;
-				permutation(cnt + 1);
-				chk[i] = false;
+			if(!v[i]) {
+				v[i] = true;
+				
+				int d = getDist(lastX, lastY, customers[i][0], customers[i][1]);
+				findPath(count + 1, customers[i][0], customers[i][1], distSum + d);
+				
+				v[i] = false;
 			}
 		}
+		
 	}
 	
-	static void getAns() {
-		int result = 0;
-		
-		int start_row = si;
-		int start_col = sj;
-		
-		for(int i = 0; i < N; i++) {
-			int home = order[i];
-			int ci = homes[home][0];
-			int cj = homes[home][1];
-			
-			result += getDist(start_row, start_col, ci, cj);
-			start_row = ci;
-			start_col = cj;
-		}
-		result += getDist(start_row, start_col, ei, ej);
-		
-		ans = Math.min(ans, result);
-	}
-	
-	static int getDist(int sr, int sc, int er, int ec) {
-		return Math.abs(sr - er) + Math.abs(sc - ec);
+	static int getDist(int x1, int y1, int x2, int y2) {
+		return Math.abs(x1 - x2) + Math.abs(y1 - y2);
 	}
 }
