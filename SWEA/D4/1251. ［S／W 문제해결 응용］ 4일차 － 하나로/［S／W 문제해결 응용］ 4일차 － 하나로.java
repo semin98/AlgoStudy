@@ -7,26 +7,10 @@ import java.util.StringTokenizer;
 
 public class Solution {
 	
-	static class Node implements Comparable<Node>{
-		int end;
-		long weight;
-		
-		Node(int end, long weight) {
-			this.end = end;
-			this.weight = weight;
-		}
 
-		@Override
-		public int compareTo(Node o) {
-			return Long.compare(this.weight, o.weight);
-		}
-	}
-	
 	static int N;
 	static long[] dist;
-	static ArrayList<Node>[] list;
 	static int[][] island;
-
 	public static void main(String[] args) throws IOException {
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -38,9 +22,6 @@ public class Solution {
 			
 			N = Integer.parseInt(br.readLine());
 			island = new int[N][2];
-			
-			list = new ArrayList[N];
-			for(int i = 0; i < N; i++) list[i] = new ArrayList<>();
 			
 			StringTokenizer r = new StringTokenizer(br.readLine());
 			StringTokenizer c = new StringTokenizer(br.readLine());
@@ -55,8 +36,6 @@ public class Solution {
 			for(int i = 0; i < N - 1; i++) {
 				for(int j = i + 1; j < N; j++) {
 					long d = getDist(island[i][0], island[i][1], island[j][0], island[j][1]);
-					list[i].add(new Node(j, d));
-					list[j].add(new Node(i, d));
 				}
 			}
 			
