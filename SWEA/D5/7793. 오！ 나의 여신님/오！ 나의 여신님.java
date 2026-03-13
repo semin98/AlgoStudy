@@ -2,17 +2,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Solution {
 	
-	static int N, M, ans;
+	static int N, M;
 	static int[] di = {1, 0, -1, 0};
 	static int[] dj = {0, 1, 0, -1};
-	static Deque<int[]> q;
+	static boolean[][] visited;
 	static char[][] map;
-	static boolean[][] v;
+	static Queue<int[]> syQ, dQ;
 
 	public static void main(String[] args) throws IOException {
 		
@@ -24,91 +24,79 @@ public class Solution {
 		for(int t = 1; t <= T; t++) {
 			
 			st = new StringTokenizer(br.readLine());
-			
 			N = Integer.parseInt(st.nextToken());
 			M = Integer.parseInt(st.nextToken());
 			
-			q = new ArrayDeque<>();
-			
-			ans = 0;
 			map = new char[N][M];
-			v = new boolean[N][M];
+			visited = new boolean[N][M];
+			syQ = new ArrayDeque<>();
+			dQ = new ArrayDeque<>();
 			
-			int[] tmp = new int[3];
 			for(int i = 0; i < N; i++) {
-				String input = br.readLine();
+				map[i] = br.readLine().toCharArray();
 				for(int j = 0; j < M; j++) {
-					map[i][j] = input.charAt(j);
-					
-					if(map[i][j] == '*') {
-						q.offer(new int[] {i, j, -1});
-					}
 					if(map[i][j] == 'S') {
-						tmp[0] = i;
-						tmp[1] = j;
-						tmp[2] = 0;
+						syQ.offer(new int[] {i, j});
+						visited[i][j] = true;
 					}
+					if(map[i][j] == '*') dQ.offer(new int[] {i, j});
 				}
 			}
-			q.offer(tmp);
 			
-			bfs();
+			int ans = bfs();
+			String fans = (ans == -1) ? "GAME OVER" : String.valueOf(ans);
+			System.out.println("#" + t + " " + fans);
 			
-			if(ans == 0) {
-				System.out.println("#" + t + " GAME OVER");
-			} else {
-				System.out.println("#" + t + " " + ans);
-			}
 		}
 		
 	}
 	
-	static void bfs() {
+	static int bfs() {
+		int time = 0;
 		
-		
-		while(!q.isEmpty()) {
-			int[] cur = q.poll();
-			int ci = cur[0];
-			int cj = cur[1];
-			int cnt = cur[2];
+		while(!syQ.isEmpty()) {
+			time++;
 			
-			int d_cnt = 0;
-			for(int d = 0; d < 4; d++) {
-				int ni = ci + di[d];
-				int nj = cj + dj[d];
-				
-				
-				if(cnt == -1) {
-					if(isIn(ni, nj) && map[ni][nj] == '.') {
+			int dSize = dQ.size();
+			for(int i = 0; i < dSize; i++) {
+				int[] cur = dQ.poll();
+			
+				for(int d = 0; d < 4; d++) {
+					int ni = cur[0] + di[d];
+					int nj = cur[1] + dj[d];
+					
+					if(isIn(ni, nj) && (map[ni][nj] == '.' || map[ni][nj] == 'S')) {
 						map[ni][nj] = '*';
-						q.offer(new int[] {ni, nj, cnt});
-					}
-				}
-				
-				
-				if(cnt >= 0) {
-					if(isIn(ni, nj) && map[ni][nj] == '.' && !v[ni][nj]) {
-						v[ni][nj] = true;
-						map[ni][nj] = 'S';
-						map[ci][cj] = '.';
-						q.offer(new int[] {ni, nj, cnt + 1});
-					}else if(isIn(ni, nj) && map[ni][nj] == 'D') {
-						ans = cnt + 1;
-						return;
-					} else if(isIn(ni, nj) && (map[ni][nj] == '*' || map[ni][nj] == 'X')) {
-						d_cnt++;
+						dQ.offer(new int[] {ni, nj});
 					}
 				}
 			}
 			
-			if(d_cnt == 4) {
+			int sSize = syQ.size();
+			for(int i = 0; i < sSize; i++) {
+				int[] cur = syQ.poll();
 				
-				return;
+				for(int d = 0; d < 4; d++) {
+					int ni = cur[0] + di[d];
+					int nj = cur[1] + dj[d];
+					
+					if(isIn(ni, nj)) {
+						if(map[ni][nj] == 'D') return time;
+						
+						if(!visited[ni][nj] && map[ni][nj] == '.') {
+							visited[ni][nj] = true;
+							syQ.offer(new int[] {ni, nj});
+						}
+					}
+				}
 			}
 		}
+		
+		return -1;
 	}
 	
-	static boolean isIn(int si, int sj) {
-		return 0 <= si && si < N && 0 <= sj && sj < M; 
+	
+	static boolean isIn(int ci, int cj) {
+		return 0 <= ci && ci < N && 0 <= cj && cj < M;
 	}
 }
