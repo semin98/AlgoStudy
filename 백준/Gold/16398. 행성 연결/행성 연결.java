@@ -2,65 +2,85 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.PriorityQueue;
+import java.util.Collections;
 import java.util.StringTokenizer;
 
 public class Main {
 
-    static class Node implements Comparable<Node> {
+    static class Edge implements Comparable<Edge> {
+        int start;
         int end;
         int weight;
 
-        Node(int end, int weight) {
+        Edge(int start, int end, int weight) {
+            this.start = start;
             this.end = end;
             this.weight = weight;
         }
 
 
         @Override
-        public int compareTo(Node o) {
-            return Integer.compare(this.weight, o.weight);
+        public int compareTo(Edge o) {
+            return this.weight - o.weight;
         }
     }
 
+    static void makeSets() {
+        parent = new int[N];
+        for(int i = 0; i < N; i++) parent[i] = i;
+    }
+
+    static int findSet(int a) {
+        if(a == parent[a]) return a;
+        return parent[a] = findSet(parent[a]);
+    }
+
+    static boolean union(int a, int b) {
+        int aRoot = findSet(a);
+        int bRoot = findSet(b);
+
+        if(aRoot == bRoot) return false;
+
+        parent[bRoot] = aRoot;
+        return true;
+    }
+
+    static int N;
+    static int[] parent;
+
     public static void main(String[] args) throws IOException {
+
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int N = Integer.parseInt(br.readLine());
 
-        int[][] map = new int[N][N];
+        N = Integer.parseInt(br.readLine());
 
-        for (int i = 0; i < N; i++) {
+        ArrayList<Edge> edgeList = new ArrayList<>();
+
+        for(int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < N; j++) {
-                map[i][j] = Integer.parseInt(st.nextToken());
-            }
-        }
+            for(int j = 0; j < N; j++) {
+                int w = Integer.parseInt(st.nextToken());
 
-        long total = 0;
-        boolean[] visited = new boolean[N];
-        PriorityQueue<Node> pq = new PriorityQueue<>();
-
-        pq.offer(new Node(0, 0));
-        int count = 0;
-
-        while(!pq.isEmpty()) {
-            Node cur = pq.poll();
-
-            if(visited[cur.end]) continue;
-
-            visited[cur.end] = true;
-            total += cur.weight;
-
-            if(++count == N) break;
-
-            for(int next = 0; next < N; next++) {
-                if(!visited[next]) {
-                    pq.offer(new Node(next, map[cur.end][next]));
+                if(i < j) {
+                    edgeList.add(new Edge(i, j, w));
                 }
             }
         }
 
-        System.out.println(total);
+        Collections.sort(edgeList);
 
+        makeSets();
+
+        long total = 0;
+        int cnt = 0;
+
+        for(Edge edge : edgeList) {
+            if(union(edge.start, edge.end)) {
+                total += edge.weight;
+                if(++cnt == N - 1) break;
+            }
+        }
+
+        System.out.println(total);
     }
 }
